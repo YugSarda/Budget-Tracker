@@ -1,34 +1,65 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import Register from "./pages/Register";
-import Login from "./pages/Login";
-import Dashboard from "./pages/Dashboard";
-import Navbar from "./components/Navbar";
-import ProtectedRoute from "./components/ProtectedRoute";
+// import { BrowserRouter } from "react-router-dom";
+// import Navbar from "./components/Navbar";
+
+// // import { ToastContainer } from "react-toastify";
+// // import "react-toastify/dist/ReactToastify.css";
+// import AppRoutes from "./routes/AppRoutes";
+
+// function App() {
+//   return (
+//     <div className="flex flex-col min-h-screen">
+//       <BrowserRouter>
+//         <Navbar />
+//         <main className="flex-grow">
+//           <AppRoutes />
+//         </main>
+//         {/* <ToastContainer position="top-right" autoClose={3000} /> */}
+//       </BrowserRouter>
+//     </div>
+//   );
+// }
+
+// export default App;
+// import { BrowserRouter } from "react-router-dom";
+// import Navbar from "./components/Navbar";
+// import AppRoutes from "./routes/AppRoutes";
+// import { ToastContainer } from "react-toastify";
+// import "react-toastify/dist/ReactToastify.css";
+
+// function App() {
+//   return (
+//     <div className="flex flex-col min-h-screen">
+//       <BrowserRouter>
+//         <Navbar />
+//         <main className="flex-grow">
+//           <AppRoutes />
+//         </main>
+//         <ToastContainer position="top-right" autoClose={3000} />
+//       </BrowserRouter>
+//     </div>
+//   );
+// }
+
+// export default App;
+// src/App.jsx
+// App.jsx
+import { BrowserRouter } from "react-router-dom";
+import Sidebar from "./components/Sidebar";
+import AppRoutes from "./routes/AppRoutes";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 function App() {
   return (
-    <Router>
-      <Navbar />
-
-      {/* Toast notifications must be outside Routes */}
-      <ToastContainer position="top-right" autoClose={3000} />
-
-      <Routes>
-        <Route path="/" element={<Navigate to="/login" />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/login" element={<Login />} />
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          }
-        />
-      </Routes>
-    </Router>
+    <BrowserRouter>
+      <div className="relative min-h-screen bg-gray-50 overflow-x-hidden">
+        <Sidebar />
+        <main className="relative z-10 p-6">
+          <AppRoutes />
+        </main>
+        <ToastContainer position="top-right" autoClose={3000} />
+      </div>
+    </BrowserRouter>
   );
 }
 

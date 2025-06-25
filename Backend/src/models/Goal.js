@@ -1,10 +1,13 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 const goalSchema = new mongoose.Schema({
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  category: { type: String }, // optional
-  amount: { type: Number, required: true },
-  month: { type: String }, // e.g., "2025-06"
-}, { timestamps: true });
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+  title: { type: String, required: true },
+  targetAmount: { type: Number, required: true },
+  deadline: { type: Date, required: true },
+  currentAmount: { type: Number, default: 0 },
+   goalType: { type: String, enum: ["savings", "spending"], default: "savings" },
+ 
+},{ timestamps: true });
 
-export default mongoose.model('Goal', goalSchema);
+export default mongoose.model("Goal", goalSchema);
