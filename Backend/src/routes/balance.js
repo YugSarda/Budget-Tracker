@@ -3,13 +3,13 @@ import User from '../models/User.js';
 
 const router = express.Router();
 
-// Get User's Overall Balances
+
 router.get('/:userId', async (req, res) => {
   try {
     const user = await User.findById(req.params.userId)
       .populate('balances.user', 'name email');
     
-    // Simplify balances (net amounts)
+   
     const result = user.balances.map(balance => ({
       user: balance.user,
       amount: Math.abs(balance.amount),
@@ -22,7 +22,7 @@ router.get('/:userId', async (req, res) => {
   }
 });
 
-// Settle Up between Users
+
 router.post('/:userId/settle', async (req, res) => {
   try {
     const { fromUserId, toUserId, amount } = req.body;

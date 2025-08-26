@@ -1,7 +1,6 @@
 
 import Expense from "../models/Expense.js";
 
-// Get category-wise total expenses
 export const getCategoryAnalysis = async (req, res) => {
   try {
     const userId = req.user._id || req.user;
@@ -26,7 +25,7 @@ export const getCategoryAnalysis = async (req, res) => {
   }
 };
 
-// Get monthly total expenses
+
 export const getWeeklyAnalysis = async (req, res) => {
   try {
     const userId = req.user._id || req.user;
@@ -141,57 +140,4 @@ const nextMonthKey = (key, step) => {
   const [y, m] = key.split("-").map(Number);
   const date = new Date(y, m - 1 + step, 1);
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
-};
-// controllers/analysisController.js
-export const getEmotionAnalysis = async (req, res) => {
-  try {
-    const userId = req.user._id || req.user;
-
-    const expenses = await Expense.find({ userId, type: "expense" });
-
-    const emotionMap = { happy: 0, neutral: 0, sad: 0 };
-
-    for (let exp of expenses) {
-      if (exp.emotion && emotionMap.hasOwnProperty(exp.emotion)) {
-        emotionMap[exp.emotion] += exp.amount;
-      }
-    }
-
-    const formatted = Object.entries(emotionMap).map(([emotion, amount]) => ({
-      emotion,
-      amount: Number(amount.toFixed(2))
-    }));
-
-    res.json(formatted);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
-export const detectMoneyLeaks = async (req, res) => {
-  try {
-    const expenses = await Expense.find({ userId: req.user._id, type: "expense" });
-
-    const leakThreshold = 100; // ₹100 or less
-    const frequencyMap = {};
-
-    expenses.forEach((exp) => {
-      if (exp.amount <= leakThreshold) {
-        const key = exp.title.toLowerCase().trim();
-        frequencyMap[key] = frequencyMap[key] || { count: 0, total: 0 };
-        frequencyMap[key].count += 1;
-        frequencyMap[key].total += exp.amount;
-      }
-    });
-
-    const leaks = Object.entries(frequencyMap)
-      .map(([title, { count, total }]) => ({ title, count, total }))
-      .sort((a, b) => b.count - a.count)
-      .slice(0, 3); // top 3
-
-    const leakSum = leaks.reduce((sum, item) => sum + item.total, 0);
-
-    res.json({ leaks, leakSum });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
 };

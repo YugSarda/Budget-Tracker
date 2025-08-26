@@ -5,12 +5,17 @@ import {  FiPlus, FiDollarSign, FiTrendingUp, FiTrendingDown } from "react-icons
 import { useNavigate } from "react-router-dom";
 import { FaPiggyBank, FaUtensils, FaPlane, FaSmile, FaMeh, FaFrown } from "react-icons/fa";
 import ReceiptScanner from "../components/ReceiptScanner"; // Import your receipt scanner component
-// import { useFinance } from "../contexts/FinanceContext.jsx"; // Import the Finance context
+import OverspendingAlert from "../components/OverspendingAlert"; 
 export default function Dashboard() {
-  // const { refreshTransactions } = useFinance();
+   
   const navigate = useNavigate();
   const [summary, setSummary] = useState({ income: 0, spent: 0, balance: 0 });
   const [expenses, setExpenses] = useState([]);
+  const [categoryData, setCategoryData] = useState([]);
+  const [weeklyData, setWeeklyData] = useState([]);
+
+  const [prediction, setPrediction] = useState(null);
+
   const [form, setForm] = useState({
     title: "",
     amount: "",
@@ -38,30 +43,72 @@ export default function Dashboard() {
     setExpenses(res.data);
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    await axios.post("http://localhost:5000/api/expenses", form, {
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   await axios.post("http://localhost:5000/api/expenses", form, {
+  //     headers: { Authorization: token },
+  //   });
+  
+  //   if (window.location.pathname === "/analysis") {
+  //     window.location.reload();
+  //   }
+  //   setForm({ title: "", amount: "", type: "expense" });
+  //   fetchExpenses();
+  //   fetchSummary();
+  //   // fetchCategoryData();
+  //   // fetchWeeklyData();
+  //   // fetchPrediction();
+
+  //   localStorage.setItem("triggerAnalysisReload", Date.now());
+    
+  // };
+
+ 
+const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  try {
+    const res = await axios.post("http://localhost:5000/api/expenses", form, {
       headers: { Authorization: token },
     });
-  
+   console.log("Response:", res.data);
+//  alert(`You've overspent in "${res.data.category}" category!`);
+    if (res.data.overspent) {
+      const msg = `⚠️ You've exceeded your ${res.data.category} budget!`;
+
+      // 🔔 Request permission if needed
+      if (Notification.permission === "granted") {
+        new Notification(msg);
+      } else if (Notification.permission !== "denied") {
+        Notification.requestPermission().then((perm) => {
+          if (perm === "granted") {
+            new Notification(msg);
+          }
+        });
+      }
+    }
+
     if (window.location.pathname === "/analysis") {
       window.location.reload();
     }
-    setForm({ title: "", amount: "", type: "expense" });
+
+    setForm({ title: "", amount: "", type: "expense", category: "general" });
     fetchExpenses();
     fetchSummary();
     localStorage.setItem("triggerAnalysisReload", Date.now());
-    navigate('/analysis'); // Navigate to analysis page after adding transaction
-    // refreshTransactions(); // Call the refresh function from useFinance
-  };
-
- 
+  } catch (err) {
+    console.error("Error adding expense:", err);
+  }
+};
 
   // useEffect(() => {
   //   fetchSummary();
   //   fetchExpenses();
   // }, []);
   useEffect(() => {
+    if ("Notification" in window && Notification.permission !== "granted") {
+    Notification.requestPermission();
+  }
   const fetchData = async () => {
     try {
       const catRes = await axios.get("http://localhost:5000/api/analysis/categories", {
@@ -71,25 +118,15 @@ export default function Dashboard() {
     } catch (err) {
       console.error("Category analysis fetch error:", err);
     }
-
+   
     try {
-      const monRes = await axios.get("http://localhost:5000/api/analysis/monthly", {
-        headers: { Authorization: token },
-      });
-      setMonthlyData(monRes.data);
-    } catch (err) {
-      console.error("Monthly analysis fetch error:", err);
-    }
-
-    try {
-      const leakRes = await axios.get("http://localhost:5000/api/analysis/leaks", {
-        headers: { Authorization: token },
-      });
-      setLeaks(leakRes.data.leaks);
-      setLeakSum(leakRes.data.leakSum);
-    } catch (err) {
-      console.error("Leak detection fetch error:", err);
-    }
+  const weekres = await axios.get("http://localhost:5000/api/analysis/weekly", {
+    headers: { Authorization: token },
+  });
+  setWeeklyData(weekres.data);
+} catch (err) {
+  console.error("Weekly analysis fetch error:", err);
+}
 
     try {
       const res = await axios.get("http://localhost:5000/api/analysis/forecast", {
@@ -98,15 +135,6 @@ export default function Dashboard() {
       setPrediction(res.data.forecast?.[0]?.pred || null);
     } catch (err) {
       console.error("Prediction fetch error:", err);
-    }
-
-    try {
-      const emoRes = await axios.get("http://localhost:5000/api/analysis/emotion", {
-        headers: { Authorization: token },
-      });
-      setEmotionData(emoRes.data);
-    } catch (err) {
-      console.error("Emotion analysis fetch error:", err);
     }
 
     try {
@@ -129,8 +157,8 @@ export default function Dashboard() {
   const interval = setInterval(() => {
     const trigger = localStorage.getItem("triggerAnalysisReload");
     if (trigger) {
-      fetchData(); // re-fetch analysis data
-      localStorage.removeItem("triggerAnalysisReload"); // reset flag
+      fetchData(); 
+      localStorage.removeItem("triggerAnalysisReload"); 
     }
   }, 2000);
 
@@ -139,19 +167,16 @@ export default function Dashboard() {
 
 
   return (
+    
     <div className="min-h-screen bg-gray-50 p-6">
+      <OverspendingAlert />
       {/* Header */}
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold text-gray-800 flex items-center">
           <FiDollarSign className="mr-2 text-blue-600" />
           Finance Dashboard
         </h1>
-        {/* <button 
-          onClick={logout} 
-          className="flex items-center gap-2 bg-red-100 text-red-600 hover:bg-red-600 hover:text-white px-4 py-2 rounded-lg transition-all"
-        >
-          <FiLogOut /> Logout
-        </button> */}
+       
       </div>
 
       {/* Summary Cards */}
@@ -247,9 +272,19 @@ export default function Dashboard() {
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
               >
                 <option value="general">General</option>
+                <option value="bills">Bills</option>
+                <option value="entertainment">Entertainment</option>
+                <option value="shopping">Shopping</option>
+                <option value="transport">Transport</option>
+                <option value="health">Health</option>
+                <option value="education">Education</option>
+                <option value="investment">Investment</option>
+                <option value="salary">Salary</option>
+              
                 <option value="savings">Savings</option>
                 <option value="food">Food</option>
                 <option value="travel">Travel</option>
+                  <option value="other">Other</option>
               </select>
             </div>
           </div>

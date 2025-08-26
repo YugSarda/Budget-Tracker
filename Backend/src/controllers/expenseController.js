@@ -1,20 +1,26 @@
 import Expense from "../models/Expense.js";
 import jwt from "jsonwebtoken";
+import Alert from "../models/Alert.js";
 
-// export const createExpense = async (req, res) => {
-//   try {
-//     const { title, amount, type } = req.body;
-//     const expense = await Expense.create({
-//       userId: req.user,
-//       title,
-//       amount,
-//       type,
-//     });
-//     res.status(201).json(expense);
-//   } catch (err) {
-//     res.status(500).json({ msg: err.message });
-//   }
-// };
+const checkOverspending = async (userId, category) => {
+  try {
+    const normalized = category.toLowerCase();
+
+    const alert = await Alert.findOne({ userId, category: normalized });
+    if (!alert) return false;
+
+    const expenses = await Expense.find({ userId, category: normalized, type: "expense" });
+    const total = expenses.reduce((sum, e) => sum + e.amount, 0);
+
+    return total > alert.limit;
+  } catch (err) {
+    console.error("Overspending Check Error:", err);
+    return false;
+  }
+};
+
+
+
 export const createExpense = async (req, res) => {
   try {
     const {
@@ -33,14 +39,22 @@ export const createExpense = async (req, res) => {
       title,
       amount,
       type,
-      category,
-      date: date || new Date(), // fallback to now
+      category: category.toLowerCase(),
+      date: date || new Date(), 
       emotion,
       refundable,
       refundStatus,
     });
 
-    res.status(201).json(expense);
+
+  const isOver = await checkOverspending(req.user._id, expense.category.toLowerCase());
+
+  if (isOver) {
+    res.status(201).json({ expense, overspent: true, category: expense.category });
+  } else {
+    res.status(201).json({ expense, overspent: false });
+  }
+   
   } catch (err) {
     console.error("Create Expense Error:", err);
     res.status(500).json({ msg: err.message });

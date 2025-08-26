@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import Recommendations from "../components/Recommendations";
 import axios from "axios";
 import {
   PieChart,
@@ -23,11 +24,7 @@ import {
 } from "@react-pdf/renderer";
 
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#845EC2"];
-const EMOTION_COLORS = {
-  happy: "#10B981",
-  neutral: "#3B82F6",
-  sad: "#EF4444",
-};
+
 
 const styles = StyleSheet.create({
   page: {
@@ -81,9 +78,9 @@ const MonthlyPDF = ({ summary, expenses }) => (
       <Text style={styles.title}>💸 Monthly Finance Report</Text>
       <View style={styles.section}>
         <Text style={styles.heading}>🔍 Summary</Text>
-        <Text style={styles.text}>Total Income: ₹{summary.income}</Text>
-        <Text style={styles.text}>Total Expenses: ₹{summary.spent}</Text>
-        <Text style={styles.text}>Balance: ₹{summary.balance}</Text>
+        <Text style={styles.text}>Total Income: {summary.income}</Text>
+        <Text style={styles.text}>Total Expenses: {summary.spent}</Text>
+        <Text style={styles.text}>Balance: {summary.balance}</Text>
       </View>
       <View style={styles.section}>
         <Text style={styles.heading}>📊 Top 5 Expenses</Text>
@@ -115,10 +112,7 @@ const MonthlyPDF = ({ summary, expenses }) => (
 export default function Analysis() {
   const [categoryData, setCategoryData] = useState([]);
   const [weeklyData, setWeeklyData] = useState([]);
-  const [emotionData, setEmotionData] = useState([]);
-  const [leaks, setLeaks] = useState([]);
-  const [leakSum, setLeakSum] = useState(0);
-  const [prediction, setPrediction] = useState(null);
+  
   const [summary, setSummary] = useState({ income: 0, spent: 0, balance: 0 });
   const [expenses, setExpenses] = useState([]);
 
@@ -144,33 +138,11 @@ export default function Analysis() {
   console.error("Weekly analysis fetch error:", err);
 }
 
-      try {
-        const leakRes = await axios.get("http://localhost:5000/api/analysis/leaks", {
-          headers: { Authorization: token },
-        });
-        setLeaks(leakRes.data.leaks);
-        setLeakSum(leakRes.data.leakSum);
-      } catch (err) {
-        console.error("Leak detection fetch error:", err);
-      }
+     
 
-      try {
-        const res = await axios.get("http://localhost:5000/api/analysis/predict-expense", {
-          headers: { Authorization: token },
-        });
-        setPrediction(res.data.predicted);
-      } catch (err) {
-        console.error("Prediction fetch error:", err);
-      }
+      
 
-      try {
-        const emoRes = await axios.get("http://localhost:5000/api/analysis/emotion", {
-          headers: { Authorization: token },
-        });
-        setEmotionData(emoRes.data);
-      } catch (err) {
-        console.error("Emotion analysis fetch error:", err);
-      }
+    
 
       try {
         const sumRes = await axios.get("http://localhost:5000/api/expenses/summary", {
@@ -243,45 +215,16 @@ export default function Analysis() {
 
       </div>
 
-      {prediction && (
+      {/* {prediction && (
         <div className="bg-white p-4 rounded shadow mt-6">
           <h3 className="text-lg font-semibold text-gray-800 mb-2">🧠 Predicted Expense for Next Month:</h3>
           <p className="text-3xl font-bold text-blue-600">₹{prediction.toLocaleString()}</p>
           <p className="text-sm text-gray-500 mt-1">Based on your past spending trend</p>
         </div>
-      )}
+      )} */}
 
-      {/* Emotion Spending */}
-      <div className="mt-10 bg-white p-6 rounded shadow max-w-2xl mx-auto">
-        <h3 className="text-lg font-semibold mb-4">🧠 Emotion-Based Spending</h3>
-        {emotionData.length === 0 ? (
-          <p className="text-gray-500">No emotional data available.</p>
-        ) : (
-          <ResponsiveContainer width="100%" height={300}>
-            <PieChart>
-              <Pie
-                data={emotionData}
-                dataKey="amount"
-                nameKey="emotion"
-                cx="50%"
-                cy="50%"
-                outerRadius={100}
-                label={({ emotion }) => {
-                  if (emotion === "happy") return "😄 Happy";
-                  if (emotion === "neutral") return "😐 Neutral";
-                  return "😞 Sad";
-                }}
-              >
-                {emotionData.map((entry, index) => (
-                  <Cell key={index} fill={EMOTION_COLORS[entry.emotion]} />
-                ))}
-              </Pie>
-              <Tooltip />
-              <Legend />
-            </PieChart>
-          </ResponsiveContainer>
-        )}
+       <Recommendations />   
       </div>
-    </div>
+    
   );
 }
