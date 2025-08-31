@@ -1,81 +1,9 @@
-// // src/components/Navbar.jsx
-// import { Link, useNavigate } from "react-router-dom";
-// import { useEffect, useState } from "react";
 
-// const Navbar = () => {
-//   const [isAuthenticated, setIsAuthenticated] = useState(false);
-//   const navigate = useNavigate();
-
-//   useEffect(() => {
-//     const token = localStorage.getItem("token");
-//     setIsAuthenticated(!!token);
-//   }, []);
-
-//   const handleLogout = () => {
-//     localStorage.removeItem("token");
-//     localStorage.removeItem("user");
-//     setIsAuthenticated(false);
-//     navigate("/login");
-//   };
-
-//   return (
-//     <nav className="bg-purple-700 text-white p-4 shadow-md">
-//       <div className="container mx-auto flex justify-between items-center">
-//         <Link to="/" className="text-xl font-bold">
-//           💸 BudgetTracker
-//         </Link>
-       
-//         <div className="space-x-4">
-//           {isAuthenticated ? (
-//             <>
-//               <Link to="/dashboard" className="hover:underline">
-//                 Dashboard
-//               </Link>
-//               <Link to="/goals" className="hover:underline">
-//                 Goal
-//               </Link>
-//               <Link to="/analysis" className="hover:underline">
-//                 Analysis
-//               </Link>
-//                             <Link to="/groups" className="hover:underline">
-//                 Splitwise
-//               </Link>
-//               <Link to="/predict" className="mr-4 hover:underline">Forecast</Link>
-//               <Link to="/refunds" className="mr-4 hover:underline">Refunds</Link>
-
-//               <button
-//                 onClick={handleLogout}
-//                 className="bg-red-500 px-3 py-1 rounded hover:bg-red-600"
-//               >
-//                 Logout
-//               </button>
-//             </>
-//           ) : (
-//             <>
-//               <Link to="/login" className="hover:underline">
-//                 Login
-//               </Link>
-//               <Link to="/register" className="hover:underline">
-//                 Register
-//               </Link>
-             
-//             </>
-//           )}
-//         </div>
-//       </div>
-//     </nav>
-//   );
-// };
-
-// export default Navbar;
-// src/components/Sidebar.jsx
-// src/components/Sidebar.jsx
-// src/components/Sidebar.jsx
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import {
   FiMenu, FiX, FiPieChart, FiTarget, FiBarChart2,
-  FiUsers, FiActivity, FiRotateCcw, FiLogOut
+   FiActivity, FiRotateCcw, FiLogOut
 } from "react-icons/fi";
 
 const Sidebar = () => {
@@ -101,7 +29,6 @@ const Sidebar = () => {
     { to: "/dashboard", label: "Dashboard", icon: <FiPieChart /> },
     { to: "/goals", label: "Goal", icon: <FiTarget /> },
     { to: "/analysis", label: "Analysis", icon: <FiBarChart2 /> },
-    { to: "/groups", label: "Splitwise", icon: <FiUsers /> },
     { to: "/predict", label: "Forecast", icon: <FiActivity /> },
     { to: "/refunds", label: "Refunds", icon: <FiRotateCcw /> },
     

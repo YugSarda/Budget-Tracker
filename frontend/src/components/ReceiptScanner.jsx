@@ -11,47 +11,6 @@ const ReceiptScanner = ({ onExtract }) => {
     setImage(e.target.files[0]);
   };
 
-  // const handleScan = async () => {
-  //   if (!image) return;
-  //   setLoading(true);
-  //   const formData = new FormData();
-  //   formData.append("file", image);
-  //   formData.append("language", "eng");
-  //   formData.append("apikey", "OCR_API_KEY"); // Replace with your OCR.space API key
-  //   formData.append("isOverlayRequired", false);
-
-  //   try {
-  //     const res = await axios.post("https://api.ocr.space/parse/image", formData, {
-  //       headers: { "Content-Type": "multipart/form-data" },
-  //     });
-
-  //     const parsedText = res.data?.ParsedResults?.[0]?.ParsedText || "";
-  //     setText(parsedText);
-
-  //     // Basic extraction logic (you can improve this with NLP)
-  //     const lines = parsedText.split("\n").filter(Boolean);
-  //     let foundTitle = "";
-  //     let foundAmount = 0;
-
-  //     for (let line of lines) {
-  //       const amountMatch = line.match(/₹?\s?(\d+(\.\d{1,2})?)/);
-  //       if (amountMatch) {
-  //         foundAmount = parseFloat(amountMatch[1]);
-  //         foundTitle = line.replace(amountMatch[0], "").trim();
-  //         break;
-  //       }
-  //     }
-
-  //     onExtract({
-  //       title: foundTitle || "Receipt Item",
-  //       amount: foundAmount || 0,
-  //     });
-  //   } catch (err) {
-  //     console.error("OCR failed", err);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
 const handleScan = async () => {
   if (!image) return;
   setLoading(true);
